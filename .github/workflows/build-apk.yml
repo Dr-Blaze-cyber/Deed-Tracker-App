@@ -52,6 +52,14 @@ jobs:
           chmod +x gradlew
           ./gradlew assembleRelease bundleRelease
 
+      - name: Show build outputs
+        run: |
+          echo "=== APK ==="
+          find android/app/build/outputs/apk -type f -print || true
+
+          echo "=== AAB ==="
+          find android/app/build/outputs/bundle -type f -print || true
+
       - name: Upload APK and AAB
         uses: actions/upload-artifact@v4
         with:
