@@ -1,0 +1,16 @@
+{
+  "name": "deed-tracker",
+  "version": "1.0.0",
+  "description": "Deed Tracker mobile application",
+  "private": true,
+  "scripts": {
+    "sync": "npx cap sync",
+    "android": "npx cap open android"
+  },
+  "dependencies": {
+    "@capacitor/core": "^7.4.0"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^7.4.0"
+  }
+}
