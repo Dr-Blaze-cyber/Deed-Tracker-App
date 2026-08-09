@@ -1,16 +1,29 @@
 {
   "name": "deed-tracker",
   "version": "1.0.0",
-  "description": "Deed Tracker mobile application",
-  "private": true,
+  "description": "",
+  "main": "index.js",
   "scripts": {
-    "sync": "npx cap sync",
-    "android": "npx cap open android"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Dr-Blaze-cyber/Deed-Tracker-App.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/Dr-Blaze-cyber/Deed-Tracker-App/issues"
+  },
+  "homepage": "https://github.com/Dr-Blaze-cyber/Deed-Tracker-App#readme",
   "dependencies": {
-    "@capacitor/core": "^7.4.0"
+    "@capacitor/android": "^8.5.0",
+    "@capacitor/cli": "^8.5.0",
+    "@capacitor/core": "^8.5.0"
   },
   "devDependencies": {
-    "@capacitor/cli": "^7.4.0"
+    "@capacitor/assets": "^3.0.5"
   }
 }
