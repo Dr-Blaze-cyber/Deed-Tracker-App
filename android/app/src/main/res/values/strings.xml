@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Deed Tracker</string>
+    <string name="title_activity_main">Deed Tracker</string>
+    <string name="package_name">com.drblaze.deedtracker</string>
+    <string name="custom_url_scheme">com.drblaze.deedtracker</string>
+</resources>

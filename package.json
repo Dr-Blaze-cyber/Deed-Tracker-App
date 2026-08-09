@@ -8,6 +8,7 @@
     "android": "npx cap open android"
   },
   "dependencies": {
+    "@capacitor/android": "^7.6.8",
     "@capacitor/core": "^7.4.0"
   },
   "devDependencies": {

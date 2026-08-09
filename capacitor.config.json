@@ -1,6 +1,6 @@
 {
   "appId": "com.drblaze.deedtracker",
   "appName": "Deed Tracker",
-  "webDir": ".",
+  "webDir": "www",
   "bundledWebRuntime": false
 }
