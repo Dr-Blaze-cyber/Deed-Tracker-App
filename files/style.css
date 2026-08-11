@@ -61,12 +61,14 @@ button {
 .app-title {
   font-size: 25px;
   font-weight: 900;
+  text-align: center;
   margin: 0 0 5px;
 }
 .app-subtitle {
   font-size: 13px;
   opacity: 0.9;
   line-height: 1.8;
+  text-align: center;
 }
 .day-bar {
   background: white;

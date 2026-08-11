@@ -641,7 +641,7 @@ function render() {
   document.getElementById("app").innerHTML = `
   <header class="app-header">
    <div class="app-title">Deed Tracker</div>
-   <div class="app-subtitle">ثبت و پیگیری اعمال، عبادات، مهارت‌ها و فعالیت‌های روزانه</div>
+   <div class="app-subtitle">ای آنکه با تلاش در پی آبادانی دنیای رو به ویرانی هستی، آیا برای عمر ویران شده نیز آبادانی‌ای هست؟</div>
   </header>
 
   <div id="stickyHeader" class="sticky-header ${isScrolled}">
