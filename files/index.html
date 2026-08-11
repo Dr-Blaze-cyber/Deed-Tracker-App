@@ -1,23 +1,28 @@
 <!doctype html>
 <html lang="fa" dir="rtl">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <meta name="theme-color" content="#1565c0">
-  <title>Deed Tracker</title>
-  <link rel="stylesheet" href="style.css">
-</head>
-<body>
-  <div id="app"></div>
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1,viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#1565c0" />
+    <title>Deed Tracker</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div id="app"></div>
 
-  <div id="modalOverlay" class="modal-overlay hidden">
-    <div class="modal" role="dialog" aria-modal="true">
-      <button class="modal-close" aria-label="بستن" onclick="closeModal()">×</button>
-      <div id="modalContent"></div>
+    <div id="modalOverlay" class="modal-overlay hidden">
+      <div class="modal" role="dialog" aria-modal="true">
+        <button class="modal-close" aria-label="بستن" onclick="closeModal()">
+          ×
+        </button>
+        <div id="modalContent"></div>
+      </div>
     </div>
-  </div>
 
-  <div id="toastContainer"></div>
-  <script src="app.js"></script>
-</body>
+    <div id="toastContainer"></div>
+    <script src="app.js"></script>
+  </body>
 </html>

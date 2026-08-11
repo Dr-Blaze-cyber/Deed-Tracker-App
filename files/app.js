@@ -72,6 +72,13 @@ function gregorianToJalali(gy, gm, gd) {
   return { jy, jm, jd };
 }
 
+// تشخیص روز جمعه
+function isFriday(key) {
+  if (!key) return false;
+  const d = dateFromKey(key);
+  return d.getDay() === 5;
+}
+
 // الگوریتم دقیق و استاندارد تبدیل شمسی به میلادی
 function jalaliToGregorian(jy, jm, jd) {
   jy += 1595;
@@ -151,11 +158,12 @@ function prettyDate(key) {
 }
 
 /* -------------------- Activity definitions -------------------- */
-const A = (id, title, required = false, points = 0) => ({
+const A = (id, title, required = false, points = 0, condition = null) => ({
   id,
   title,
   required,
   points,
+  condition,
 });
 const ACTIVITIES = {
   prayers: {
@@ -174,11 +182,11 @@ const ACTIVITIES = {
       {
         title: "سنن و نوافل",
         items: [
-          A("ishraq", "اشراق", false, 3),
-          A("awwabin", "اوابین", false, 3),
-          A("tahajjud", "تهجد", false, 5),
-          A("wuduTahiyyah", "تحیة‌الوضو", false, 2),
-          A("mosqueTahiyyah", "تحیة‌المسجد", false, 2),
+          A("tahajjud", "تهجد", false, 20),
+          A("ishraq", "اشراق", false, 10),
+          A("awwabin", "اوابین", false, 10),
+          A("wuduTahiyyah", "تحیة‌الوضو", false, 5),
+          A("mosqueTahiyyah", "تحیة‌المسجد", false, 5),
         ],
       },
     ],
@@ -189,21 +197,19 @@ const ACTIVITIES = {
       {
         title: "صبح",
         items: [
-          A("morningDua", "دعا", true, 2),
-          A("morningIstighfar", "۱۰۰ مرتبه استغفار", true, 2),
-          A("morningSalawat", "۱۰۰ مرتبه درود", true, 2),
-          A("morningThirdKalima", "۱۰۰ مرتبه کلمه سوم", true, 2),
-          A("morningMunajat", "مناجات مقبول", false, 2),
+          A("morningDua", "دعا", false, 5),
+          A("morningIstighfar", "۱۰۰ مرتبه استغفار", false, 5),
+          A("morningSalawat", "۱۰۰ مرتبه درود", false, 5),
+          A("morningThirdKalima", "۱۰۰ مرتبه کلمه سوم", false, 5),
         ],
       },
       {
         title: "شام",
         items: [
-          A("eveningDua", "دعا", true, 2),
-          A("eveningIstighfar", "۱۰۰ مرتبه استغفار", true, 2),
-          A("eveningSalawat", "۱۰۰ مرتبه درود", true, 2),
-          A("eveningThirdKalima", "۱۰۰ مرتبه کلمه سوم", true, 2),
-          A("eveningMunajat", "مناجات مقبول", false, 2),
+          A("eveningDua", "دعا", false, 2),
+          A("eveningIstighfar", "۱۰۰ مرتبه استغفار", false, 2),
+          A("eveningSalawat", "۱۰۰ مرتبه درود", false, 2),
+          A("eveningThirdKalima", "۱۰۰ مرتبه کلمه سوم", false, 2),
         ],
       },
     ],
@@ -212,7 +218,7 @@ const ACTIVITIES = {
     title: "تلاوت قرآن مجید",
     groups: [
       {
-        title: "ختم قرآن",
+        title: "تلاوت روزانه",
         exclusive: true,
         items: [
           A("hizb", "یک حزب", false, 2),
@@ -224,10 +230,10 @@ const ACTIVITIES = {
       {
         title: "تلاوت سوره‌ها",
         items: [
-          A("yasin", "یس", false, 2),
-          A("mulk", "ملک", false, 2),
-          A("sajdah", "سجده", false, 2),
-          A("kahf", "کهف", false, 2),
+          A("yasin", "صبح : یس", false, 2),
+          A("mulk", "بعد از غروب : ملک", false, 2),
+          A("sajdah", "واقعه : بعد از عشا", false, 2),
+          A("kahf", "کهف", false, 2, (key) => isFriday(key)),
         ],
       },
     ],
@@ -267,61 +273,35 @@ const ACTIVITIES = {
     ],
   },
   writingSkills: {
-    title: "کسب مهارت‌های نوشتاری",
+    title: "کسب مهارت‌های ادبی",
     items: [
       A("editing", "ویراستاری", false, 3),
       A("writing", "نویسندگی", false, 4),
-      A("literature", "مطالعه کتاب و مقالات ادبی", false, 3),
-    ],
-  },
-  speakingSkills: {
-    title: "کسب مهارت گفتاری",
-    items: [
-      A("management", "مدیریت", false, 3),
-      A("psychology", "روانشناسی", false, 3),
       A("publicSpeaking", "فن بیان", false, 4),
     ],
   },
   character: {
     title: "اصلاح تزکیه و اخلاق",
     items: [
-      A("patienceGratitude", "کسب صبر و شکر", true, 2),
-      A("ethicsTaqwa", "کسب اخلاق و تقوی", true, 2),
-      A("tawakkulRida", "کسب توکل و رضا", true, 2),
-      A("honestyTrust", "کسب صداقت و حفظ امانت", true, 2),
-      A("contentmentCertainty", "کسب قناعت و یقین", false, 2),
-      A("sinAvoidance", "تمرین ترک گناه", true, 3),
-      A("guardSenses", "حفظ نگاه، گوش، زبان و فکر", true, 3),
-      A("envyShowoff", "ترک حسد و ریا", true, 2),
-      A("lyingBackbiting", "ترک دروغ و غیبت", true, 3),
-      A("angerGrudge", "ترک خشم و کینه", false, 2),
+      A("patienceGratitude", "تمرین صبر و شکر", true, 2),
+      A("ethicsTaqwa", "تمرین تقوا", true, 2),
+      A("tawakkulRida", "تمرین توکل و رضا", true, 2),
+      A("honestyTrust", "تمرین صداقت و امانت", true, 2),
+      A("contentmentCertainty", "تمرین قناعت", true, 2),
+      A("sinAvoidance", "تمرین پرهیز از گناه", true, 3),
+      A("guardSenses", "حفظ نگاه، زبان و ...", true, 3),
+      A("envyShowoff", "پرهیز از حسد و ریا", true, 2),
+      A("lyingBackbiting", "پرهیز از دروغ و غیبت", true, 3),
+      A("angerGrudge", "پرهیز از خشم و کینه", true, 2),
     ],
   },
   islamicCustoms: {
     title: "آداب و رسوم اسلامی",
     items: [
       A("parentsRights", "رعایت حقوق والدین", true, 3),
-      A("relativesNeighbors", "رعایت حقوق خویشاوند و همسایه", true, 3),
-      A("tradeManners", "ترویج آداب معاملات و معاشرات اسلامی", false, 2),
-      A("familyRelations", "تلاش در جهت تقویت روابط اقوام با یکدیگر", false, 2),
       A("silatRahim", "صله رحم", false, 3),
-      A(
-        "removeInnovationsFuneralWedding",
-        "رفع بدعات در تعزیت و عروسی",
-        false,
-        2,
-      ),
-      A("islamicWedding", "مشارکت در برگزاری عروسی‌های اسلامی", false, 2),
-      A("communityInnovations", "تلاشی در جهت رفع بدعات جامعه", false, 3),
-    ],
-  },
-  social: {
-    title: "اجتماعی",
-    items: [
       A("visitSick", "عیادت بیماران", false, 3),
       A("shareJoySorrow", "مشارکت در شادی و غم", false, 3),
-      A("socialServices", "مشارکت در خدمات اجتماعی", false, 4),
-      A("socialProblems", "حرکت در جهت رفع معضلات اجتماعی", false, 4),
     ],
   },
   financial: {
@@ -336,7 +316,7 @@ const ACTIVITIES = {
   sports: {
     title: "ورزش و مهارت",
     items: [
-      A("walking", "پیاده‌روی", false, 3),
+      A("walking", "پیاده‌روی", true, 3),
       A("mountain", "کوهنوردی", false, 5),
       A("purposefulCamp", "اردوهای هدفمند", false, 4),
       A("healthyFun", "تفریحات گروهی سالم", false, 3),
@@ -390,25 +370,48 @@ function scoreDay(day) {
     done = 0,
     optionalDone = 0,
     applicable = 0;
-  allActivityItems().forEach((a) => {
+
+  allActivityItems(currentKey).forEach((a) => {
     const s = statusOf(day, a.id);
-    if (s === "y") {
-      positive += a.points;
-      done++;
-      applicable++;
-      if (!a.required) optionalDone++;
-    } else if (s === "x") {
-      applicable++;
-      if (a.required) requiredMisses++;
+
+    const isFaraid = ["fajr", "dhuhr", "asr", "maghrib", "isha"].includes(a.id);
+
+    if (isFaraid) {
+      let pts = 0;
+      if (s === "congregation") pts = 20;
+      else if (s === "individual") pts = 10;
+      else if (s === "qada") pts = 5;
+
+      if (s !== "x") {
+        done++;
+        positive += pts;
+        applicable++;
+      } else {
+        applicable++;
+        if (a.required) requiredMisses++;
+      }
+    } else {
+      if (s === "y") {
+        positive += a.points;
+        done++;
+        applicable++;
+        if (!a.required) optionalDone++;
+      } else if (s === "x") {
+        applicable++;
+        if (a.required) requiredMisses++;
+      }
     }
   });
+
   const studyPoints = Math.min(
     10,
     Math.floor(day.study.reduce((n, r) => n + (Number(r.pages) || 0), 0) / 10),
   );
   if (studyPoints > 0) positive += studyPoints;
+
   const notesPoints = day.notes.trim().length >= 20 ? 2 : 0;
   positive += notesPoints;
+
   return {
     positive,
     requiredMisses,
@@ -469,14 +472,73 @@ function toast(msg) {
 }
 function toggleHTML(a, day) {
   const s = statusOf(day, a.id);
-  const next = s === "y" ? "x" : s === "x" ? "y" : "x";
-  return `<button class="toggle ${next === "y" ? "done" : ""}" onclick="toggleActivity('${a.id}')">${next === "y" ? "✓" : "×"}</button>`;
+  let label = "×";
+  let cls = "";
+  let styleAttr = "";
+
+  const isFaraid = ["fajr", "dhuhr", "asr", "maghrib", "isha"].includes(a.id);
+
+  if (isFaraid) {
+    if (s === "congregation") {
+      label = "✓";
+      cls = "done"; // جماعت (تیک سبز/معمولی با بک‌گراند استاندارد)
+    } else if (s === "individual") {
+      label = "✓";
+      cls = "done";
+      styleAttr = "color: #ffc107;"; // فردی (تیک زرد رنگ)
+    } else if (s === "qada") {
+      label = "✓";
+      cls = "done";
+      styleAttr = "color: #ff3b3b;"; // قضا (تیک قرمز رنگ)
+    } else {
+      label = "×";
+      cls = ""; // نخوانده
+    }
+  } else {
+    label = s === "y" ? "✓" : "×";
+    cls = s === "y" ? "done" : "";
+  }
+
+  return `<button class="toggle ${cls}" style="${styleAttr}" onclick="toggleActivity('${a.id}')">${label}</button>`;
 }
+
+// function toggleHTML(a, day) {
+//   const s = statusOf(day, a.id);
+//   // تنظیم ظاهر دکمه بر اساس وضعیت
+//   let label = "×";
+//   let cls = "";
+//   if (a.section === "prayers") {
+//     if (s === "congregation") {
+//       label = "جماعت";
+//       cls = "done";
+//     } else if (s === "individual") {
+//       label = "فرادی";
+//       cls = "partial";
+//     } else if (s === "qada") {
+//       label = "قضا";
+//       cls = "qada";
+//     }
+//   } else {
+//     label = s === "y" ? "✓" : "×";
+//     cls = s === "y" ? "done" : "";
+//   }
+//   return `<button class="toggle ${cls}" onclick="toggleActivity('${a.id}')">${label}</button>`;
+// }
 function activityRow(a, day) {
+  // بررسی اینکه آیا آیتم جزء فرایض نماز است یا خیر
+  const isFaraid = ["fajr", "dhuhr", "asr", "maghrib", "isha"].includes(a.id);
+
+  // اگر جزء فرایض باشد فقط اجباری/اختیاری، در غیر این صورت همراه با امتیاز
+  const metaText = isFaraid
+    ? a.required
+      ? "اجباری"
+      : "اختیاری"
+    : `${a.required ? "اجباری" : "اختیاری"} · ${e2p(a.points)} امتیاز`;
+
   return `<div class="activity">
    <div class="activity-info">
     <div class="activity-title">${esc(a.title)}</div>
-    <div class="activity-meta">${a.required ? "اجباری" : "اختیاری"} · ${e2p(a.points)} امتیاز</div>
+    <div class="activity-meta">${metaText}</div>
    </div>${toggleHTML(a, day)}
  </div>`;
 }
@@ -496,7 +558,19 @@ function sectionHTML(key, day) {
   } else {
     body = sec.items.map((a) => activityRow(a, day)).join("");
   }
-  return `<section class="section"><div class="section-head"><h2 class="section-title">${esc(sec.title)}</h2></div><div class="section-body">${body}</div></section>`;
+
+  let prayerGuide = "";
+  if (key === "prayers") {
+    prayerGuide = `<div style="margin-bottom:12px;padding:8px 12px;background:rgba(0,0,0,0.03);border-radius:8px;display:flex;justify-content:space-around;font-size:11px;color:var(--muted);flex-wrap:wrap;gap:6px;align-items:center;">
+     <span><b>راهنما:</b></span>
+     <span><span style="color:#28a745;font-weight:bold;">✓</span> جماعت (۲۰)</span>
+     <span><span style="color:#ffc107;font-weight:bold;">✓</span> فرادی (۱۰)</span>
+     <span><span style="color:#ff3b3b;font-weight:bold;">✓</span> قضا (۵)</span>
+     <span><span style="color:inherit;font-weight:bold;">×</span> نخوانده</span>
+    </div>`;
+  }
+
+  return `<section class="section"><div class="section-head"><h2 class="section-title">${esc(sec.title)}</h2></div><div class="section-body">${prayerGuide}${body}</div></section>`;
 }
 
 /* -------------------- Study UI -------------------- */
@@ -514,7 +588,7 @@ function studyHTML(day) {
         .join("")
     : `<div class="empty">هنوز کتابی برای این روز ثبت نشده است.</div>`;
   return `<section class="section">
-   <div class="section-head"><h2 class="section-title">۴. برنامه مطالعاتی</h2><button class="btn btn-light" onclick="addStudy()">＋ افزودن کتاب</button></div>
+   <div class="section-head"><h2 class="section-title"> برنامه مطالعاتی (هر 10 صفحه 1 امتیاز)</h2><button class="btn btn-light" onclick="addStudy()">＋ افزودن کتاب</button></div>
    <div class="section-body">${rows}</div>
  </section>`;
 }
@@ -522,10 +596,20 @@ function notesHTML(day) {
   return `<section class="section">
   <div class="section-head"><h2 class="section-title">۱۶. توضیحات فرد</h2></div>
   <div class="section-body">
-   <textarea class="notes" placeholder="نقاط قوت و ضعف فردی، علل و عوامل آن و سایر توضیحات روزانه..." onchange="updateNotes(this.value)">${esc(day.notes)}</textarea>
-   <div class="activity-meta" style="margin-top:7px">تکمیل معنادار یادداشت روزانه: ۲ امتیاز اختیاری</div>
+   <textarea id="dailyNotesInput" class="notes" placeholder="نقاط قوت و ضعف فردی، علل و عوامل آن و سایر توضیحات روزانه...">${esc(day.notes)}</textarea>
+   <button class="btn btn-primary" style="margin-top:10px; width:100%;" onclick="saveNotesFromInput()">ثبت یادداشت و اعمال امتیاز</button>
+   <div class="activity-meta" style="margin-top:7px">تکمیل معنادار یادداشت روزانه (حداقل ۲۰ کاراکتر): ۲ امتیاز اختیاری</div>
   </div>
  </section>`;
+}
+function saveNotesFromInput() {
+  const textarea = document.getElementById("dailyNotesInput");
+  if (textarea) {
+    ensureDay(currentKey).notes = textarea.value;
+    saveDB();
+    render();
+    toast("یادداشت ثبت و امتیاز اعمال شد.");
+  }
 }
 
 /* -------------------- Main page -------------------- */
@@ -543,12 +627,13 @@ function render() {
   const dn = dayNumber(currentKey);
   const todayKey = jalaliKey(todayJalali());
   const isToday = currentKey === todayKey;
-  const maxRequired = allActivityItems()
-    .filter((a) => a.required)
-    .reduce((n, a) => n + a.points, 0);
-  const pct = maxRequired
-    ? Math.min(100, Math.round((sc.positive / maxRequired) * 100))
-    : 0;
+  const MAX_SCORE = 330;
+  const SUCCESS_SCORE = 145;
+
+  const pct = Math.min(100, Math.round((sc.positive / MAX_SCORE) * 100));
+
+  const checkpointPct = 100 - (SUCCESS_SCORE / MAX_SCORE) * 100;
+  const isSuccessful = sc.positive >= SUCCESS_SCORE;
 
   // بررسی وضعیت اسکرول صفحه
   const isScrolled = window.scrollY > 40 ? "scrolled" : "";
@@ -571,17 +656,32 @@ function render() {
    </div>
 
    <div class="progress-card">
-    <div class="progress-row">
-     <span>امتیاز مثبت امروز</span>
-     <strong class="score">${e2p(sc.positive)}</strong>
+    <div class="progress-row1">
+     <strong class="score"> امتیاز مثبت امروز : ${e2p(sc.positive)}</strong>
     </div>
-    <div class="progress">
-     <span style="width:${pct}%"></span>
+    <div class="progress-wrapper">
+  <div class="progress">
+    <span style="width:${pct}%"></span>
+  </div>
+
+  <div
+    class="progress-checkpoint ${isSuccessful ? "passed" : ""}"
+    style="left:${checkpointPct}%"
+  >
+    <div class="checkpoint-line"></div>
+      <div class="checkpoint-label">
+        ${e2p(SUCCESS_SCORE)}
+      </div>
     </div>
+  </div>
     <div class="progress-row" style="margin-top:8px;color:var(--muted)">
-     <span>✓ اجباری: ${e2p(sc.done)} --- اختیاری : ${e2p(sc.optionalDone)}</span>
-     <span>کاستی: ${e2p(sc.requiredMisses)}</span>
+     <span>انجام شده ✓ اجباری: ${e2p(sc.done)} --- اختیاری : ${e2p(sc.optionalDone)}</span>
+     <span>×کاستی: ${e2p(sc.requiredMisses)}</span>
     </div>
+   </div>
+  </div>
+    
+   </div>
    </div>
   </div>
 
@@ -593,10 +693,8 @@ function render() {
   ${sectionHTML("cultural", day)}
   ${sectionHTML("religiousSkills", day)}
   ${sectionHTML("writingSkills", day)}
-  ${sectionHTML("speakingSkills", day)}
   ${sectionHTML("character", day)}
   ${sectionHTML("islamicCustoms", day)}
-  ${sectionHTML("social", day)}
   ${sectionHTML("financial", day)}
   ${sectionHTML("sports", day)}
   ${sectionHTML("dailyReview", day)}
@@ -612,13 +710,23 @@ function render() {
 function toggleActivity(id) {
   const d = ensureDay(currentKey);
   const s = statusOf(d, id);
-  const nextStatus = s === "y" ? "x" : "y";
+  const item = allActivityItems().find((x) => x.id === id);
 
-  if (nextStatus === "y") {
+  if (!item) return;
+
+  const isFaraid = ["fajr", "dhuhr", "asr", "maghrib", "isha"].includes(id);
+
+  if (isFaraid) {
+    let next = "x";
+    if (s === "x") next = "congregation";
+    else if (s === "congregation") next = "individual";
+    else if (s === "individual") next = "qada";
+    else next = "x";
+    setStatus(d, id, next);
+  } else if (item.section === "quran") {
     let isExclusive = false;
     let groupItems = [];
 
-    // جستجو برای پیدا کردن گروه و بررسی انحصاری بودن آن
     for (const secKey in ACTIVITIES) {
       const sec = ACTIVITIES[secKey];
       if (sec.groups) {
@@ -633,15 +741,21 @@ function toggleActivity(id) {
       if (isExclusive) break;
     }
 
-    // خاموش کردن سایر گزینه‌های هم‌گروه
     if (isExclusive) {
-      groupItems.forEach((item) => {
-        if (item.id !== id) setStatus(d, item.id, "x");
-      });
+      const nextStatus = s === "y" ? "x" : "y";
+      if (nextStatus === "y") {
+        groupItems.forEach((it) => {
+          if (it.id !== id) setStatus(d, it.id, "x");
+        });
+      }
+      setStatus(d, id, nextStatus);
+    } else {
+      setStatus(d, id, s === "y" ? "x" : "y");
     }
+  } else {
+    setStatus(d, id, s === "y" ? "x" : "y");
   }
 
-  setStatus(d, id, nextStatus);
   saveDB();
   render();
 }
