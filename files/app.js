@@ -25,7 +25,37 @@ function loadDB() {
 let db = loadDB();
 
 function saveDB() {
-  localStorage.setItem(DB_KEY, JSON.stringify(db));
+  try {
+    localStorage.setItem(DB_KEY, JSON.stringify(db));
+  } catch (e) {
+    console.error("saveDB failed:", e);
+    warnStorageOnce();
+  }
+}
+
+// اگر ذخیره‌سازی محلی در دسترس نباشد (حالت خصوصی مرورگر، تنظیمات امنیتی و ...)
+// قبلاً این خطا کاملاً بی‌صدا بود و برنامه هر بار "روز اول" نشان می‌داد بدون هیچ توضیحی.
+// حالا حداقل یک بار در طول جلسه به کاربر اطلاع می‌دهیم.
+let storageWarned = false;
+function warnStorageOnce() {
+  if (storageWarned) return;
+  storageWarned = true;
+  toast(
+    "ذخیره‌سازی محلی در دسترس نیست؛ روزشمار و اطلاعات بعد از بستن برنامه از بین می‌روند.",
+  );
+}
+
+// تست سریع سلامت localStorage در همان ابتدای اجرا، پیش از هر ذخیره واقعی
+function storageSelfTest() {
+  const k = "__deedTrackerProbe__";
+  try {
+    localStorage.setItem(k, "1");
+    const ok = localStorage.getItem(k) === "1";
+    localStorage.removeItem(k);
+    return ok;
+  } catch (e) {
+    return false;
+  }
 }
 
 /* -------------------- Jalali calendar -------------------- */
@@ -989,6 +1019,7 @@ function summaryModal() {
 
 /* -------------------- First launch -------------------- */
 function firstLaunch() {
+  if (!storageSelfTest()) warnStorageOnce();
   if (!db.firstOpenedAt) {
     db.firstOpenedAt = nowISO();
     saveDB();
