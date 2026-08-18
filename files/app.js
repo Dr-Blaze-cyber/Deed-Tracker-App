@@ -222,7 +222,7 @@ const ACTIVITIES = {
     ],
   },
   adhkar: {
-    title: "ادعیه و اذکار صبح و شام",
+    title: "ذکر و دعا",
     groups: [
       {
         title: "صبح",
@@ -231,6 +231,7 @@ const ACTIVITIES = {
           A("morningIstighfar", "۱۰۰ مرتبه استغفار", false, 5),
           A("morningSalawat", "۱۰۰ مرتبه درود", false, 5),
           A("morningThirdKalima", "۱۰۰ مرتبه کلمه سوم", false, 5),
+          A("morningThirdKalima", "اذکار صبح", false, 5),
         ],
       },
       {
@@ -240,6 +241,7 @@ const ACTIVITIES = {
           A("eveningIstighfar", "۱۰۰ مرتبه استغفار", false, 2),
           A("eveningSalawat", "۱۰۰ مرتبه درود", false, 2),
           A("eveningThirdKalima", "۱۰۰ مرتبه کلمه سوم", false, 2),
+          A("morningThirdKalima", "اذکار شام", false, 2),
         ],
       },
     ],
@@ -260,53 +262,41 @@ const ACTIVITIES = {
       {
         title: "تلاوت سوره‌ها",
         items: [
-          A("yasin", "صبح : یس", false, 2),
+          A("yasin", "صبح : یس", true, 2),
           A("mulk", "بعد از غروب : ملک", false, 2),
-          A("sajdah", "واقعه : بعد از عشا", false, 2),
-          A("kahf", "کهف", false, 2, (key) => isFriday(key)),
+          A("sajdah", "بعد از عشا : واقعه", false, 2),
+          A("kahf", "کهف", false, 5, (key) => isFriday(key)),
         ],
       },
     ],
   },
-  meetings: {
-    title: "مجالستی",
+
+  cultural: {
+    title: "فرهنگی",
     items: [
-      A("fikriForm", "تشکیل جلسه فکری/اصلاحی", false, 4),
-      A("fikriAttend", "شرکت در جلسه فکری/اصلاحی", false, 3),
-      A("sirahForm", "تشکیل جلسه سیرت، تفسیر یا تاریخ", false, 4),
-      A("sirahAttend", "شرکت در جلسه سیرت، تفسیر یا تاریخ", false, 3),
+      A("religiousAudio", "استماع فایل‌های صوتی دینی", false, 2),
+      A("religiousAudio", "تعلیم حدیث در محل کار/محل سکونت", false, 3),
+      A("fikriForm", "تشکیل جلسه فکری/اصلاحی/تفسیر/تاریخی/علمی", false, 5),
+      A("fikriAttend", "شرکت در جلسه فکری/اصلاحی/تفسیر/تاریخی/علمی", false, 2),
       A(
         "tablighCenter",
         "شرکت در تشکیل یا شب‌نشینی مرکز جماعت تبلیغ",
         false,
         4,
       ),
-    ],
-  },
-  cultural: {
-    title: "فرهنگی",
-    items: [
+      A("tablighCenter", "شرکت در فعالیت های جماعت تبلیغ", false, 3),
       A("scholarsMonthly", "ملاقات ماهانه با علمای منطقه", false, 5),
-      A("scholarsGroup", "برگزاری دیدارهای جمعی با علما", false, 4),
-      A("piousFriends", "همنشینی با دوستان اهل فضل", false, 3),
-      A("religiousAudio", "استماع فایل‌های صوتی دینی", false, 2),
-      A("reformBookStudy", "مدارسه کتاب فکری/اصلاحی", false, 4),
-      A("groupBookTalk", "مذاکره گروهی کتاب فکری", false, 4),
+      A("scholarsGroup", "برگزاری دیدارهای جمعی با علما", false, 10),
     ],
   },
   religiousSkills: {
     title: "کسب مهارت دینی",
-    items: [
-      A("reading", "روخوانی", false, 3),
-      A("fluentReading", "روان‌خوانی", false, 3),
-      A("tajweed", "تجوید", false, 4),
-    ],
+    items: [A("reading", "روخوانی", false, 3), A("tajweed", "تجوید", false, 4)],
   },
   writingSkills: {
     title: "کسب مهارت‌های ادبی",
     items: [
-      A("editing", "ویراستاری", false, 3),
-      A("writing", "نویسندگی", false, 4),
+      A("writing", "نویسندگی و ویراستاری", false, 4),
       A("publicSpeaking", "فن بیان", false, 4),
     ],
   },
@@ -326,7 +316,7 @@ const ACTIVITIES = {
     ],
   },
   islamicCustoms: {
-    title: "آداب و رسوم اسلامی",
+    title: "آداب اسلامی",
     items: [
       A("parentsRights", "رعایت حقوق والدین", true, 3),
       A("silatRahim", "صله رحم", false, 3),
@@ -338,7 +328,6 @@ const ACTIVITIES = {
     title: "مالی",
     items: [
       A("work", "فعالیت شغلی و کاری", true, 4),
-      A("entrepreneurship", "اشتغالزایی و کارآفرینی", false, 4),
       A("charity", "انفاق از درآمد ماهانه", false, 4),
       A("technicalSkill", "کسب مهارت فنی", false, 3),
     ],
@@ -348,7 +337,7 @@ const ACTIVITIES = {
     items: [
       A("walking", "پیاده‌روی", true, 3),
       A("mountain", "کوهنوردی", false, 5),
-      A("purposefulCamp", "اردوهای هدفمند", false, 4),
+      A("purposefulCamp", "اردوهای هدفمند", false, 8),
       A("healthyFun", "تفریحات گروهی سالم", false, 3),
     ],
   },
@@ -433,10 +422,9 @@ function scoreDay(day) {
     }
   });
 
-  const studyPoints = Math.min(
-    10,
-    Math.floor(day.study.reduce((n, r) => n + (Number(r.pages) || 0), 0) / 10),
-  );
+  const studyPoints =
+    Math.floor(day.study.reduce((n, r) => n + (Number(r.pages) || 0), 0) / 10) *
+    2;
   if (studyPoints > 0) positive += studyPoints;
 
   const notesPoints = day.notes.trim().length >= 20 ? 2 : 0;
@@ -670,7 +658,7 @@ function render() {
 
   document.getElementById("app").innerHTML = `
   <header class="app-header">
-   <div class="app-title">Deed Tracker</div>
+   <div class="app-title">محاسبه اعمال</div>
    <div class="app-subtitle">ای آنکه با تلاش در پی آبادانی دنیای رو به ویرانی هستی، آیا برای عمر ویران شده نیز آبادانی‌ای هست؟</div>
   </header>
 
@@ -719,7 +707,6 @@ function render() {
   ${sectionHTML("adhkar", day)}
   ${sectionHTML("quran", day)}
   ${studyHTML(day)}
-  ${sectionHTML("meetings", day)}
   ${sectionHTML("cultural", day)}
   ${sectionHTML("religiousSkills", day)}
   ${sectionHTML("writingSkills", day)}
