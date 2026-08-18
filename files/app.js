@@ -565,16 +565,26 @@ function sectionHTML(key, day) {
   let body = "";
   if (sec.groups) {
     body = `<div class="subgrid">${sec.groups
-      .map(
-        (g) => `
+      .map((g) => {
+        const visibleItems = g.items.filter(
+          (a) => !a.condition || a.condition(currentKey),
+        );
+
+        if (!visibleItems.length) return "";
+
+        return `
    <div class="subcard">
     <div class="subcard-title">${esc(g.title)}</div>
-    ${g.items.map((a) => activityRow(a, day)).join("")}
-   </div>`,
-      )
+    ${visibleItems.map((a) => activityRow(a, day)).join("")}
+   </div>`;
+      })
       .join("")}</div>`;
   } else {
-    body = sec.items.map((a) => activityRow(a, day)).join("");
+    const visibleItems = sec.items.filter(
+      (a) => !a.condition || a.condition(currentKey),
+    );
+
+    body = visibleItems.map((a) => activityRow(a, day)).join("");
   }
 
   let prayerGuide = "";
