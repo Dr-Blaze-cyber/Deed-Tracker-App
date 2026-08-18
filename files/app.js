@@ -188,12 +188,22 @@ function prettyDate(key) {
 }
 
 /* -------------------- Activity definitions -------------------- */
-const A = (id, title, required = false, points = 0, condition = null) => ({
+const A = (
+  id,
+  title,
+  required = false,
+  points = 0,
+  condition = null,
+  type = "normal",
+  secondaryPoints = 0,
+) => ({
   id,
   title,
   required,
   points,
   condition,
+  type,
+  secondaryPoints,
 });
 const ACTIVITIES = {
   prayers: {
@@ -275,18 +285,38 @@ const ACTIVITIES = {
     title: "فرهنگی",
     items: [
       A("religiousAudio", "استماع فایل‌های صوتی دینی", false, 2),
-      A("religiousAudio", "تعلیم حدیث در محل کار/محل سکونت", false, 3),
-      A("fikriForm", "تشکیل جلسه فکری/اصلاحی/تفسیر/تاریخی/علمی", false, 5),
-      A("fikriAttend", "شرکت در جلسه فکری/اصلاحی/تفسیر/تاریخی/علمی", false, 2),
+
+      A("hadithTeaching", "تعلیم حدیث در محل کار/محل سکونت", false, 3),
+
       A(
-        "tablighCenter",
-        "شرکت در تشکیل یا شب‌نشینی مرکز جماعت تبلیغ",
+        "fikriSession",
+        "جلسه فکری/اصلاحی/تفسیر/تاریخی/علمی",
         false,
-        4,
+        2, // امتیاز شرکت
+        null,
+        "dual",
+        5, // امتیاز برگزاری
       ),
-      A("tablighCenter", "شرکت در فعالیت های جماعت تبلیغ", false, 3),
-      A("scholarsMonthly", "ملاقات ماهانه با علمای منطقه", false, 5),
-      A("scholarsGroup", "برگزاری دیدارهای جمعی با علما", false, 10),
+
+      A(
+        "tablighSession",
+        "مجالس جماعت تبلیغ",
+        false,
+        2, // امتیاز شرکت
+        null,
+        "dual",
+        5, // امتیاز برگزاری
+      ),
+
+      A(
+        "scholarsMeeting",
+        "ملاقات با علما",
+        false,
+        5, // امتیاز شرکت
+        null,
+        "dual",
+        10, // امتیاز برگزاری
+      ),
     ],
   },
   religiousSkills: {
@@ -429,14 +459,31 @@ function scoreDay(day) {
         if (a.required) requiredMisses++;
       }
     } else {
-      if (s === "y") {
-        positive += a.points;
-        done++;
-        applicable++;
-        if (!a.required) optionalDone++;
-      } else if (s === "x") {
-        applicable++;
-        if (a.required) requiredMisses++;
+      if (a.type === "dual") {
+        if (s === "participate") {
+          positive += a.points;
+          done++;
+          applicable++;
+          if (!a.required) optionalDone++;
+        } else if (s === "organize") {
+          positive += a.secondaryPoints;
+          done++;
+          applicable++;
+          if (!a.required) optionalDone++;
+        } else if (s === "x") {
+          applicable++;
+          if (a.required) requiredMisses++;
+        }
+      } else {
+        if (s === "y") {
+          positive += a.points;
+          done++;
+          applicable++;
+          if (!a.required) optionalDone++;
+        } else if (s === "x") {
+          applicable++;
+          if (a.required) requiredMisses++;
+        }
       }
     }
   });
@@ -518,12 +565,53 @@ function toast(msg) {
   document.getElementById("toastContainer").appendChild(el);
   setTimeout(() => el.remove(), 2200);
 }
+function toggleDualActivity(id, type) {
+  const d = ensureDay(currentKey);
+  const current = statusOf(d, id);
+
+  // اگر همان گزینه دوباره زده شد، غیرفعال شود
+  if (current === type) {
+    setStatus(d, id, "x");
+  } else {
+    // فقط یکی از دو وضعیت می‌تواند فعال باشد
+    setStatus(d, id, type);
+  }
+
+  saveDB();
+  render();
+}
 function toggleHTML(a, day) {
   const s = statusOf(day, a.id);
   let label = "×";
   let cls = "";
   let styleAttr = "";
+  if (a.type === "dual") {
+    const s = statusOf(day, a.id);
 
+    let companyLabel = "شرکت";
+    let organizeLabel = "برگزاری";
+
+    const companyActive = s === "participate";
+    const organizeActive = s === "organize";
+
+    return `
+    <div class="dual-toggle">
+      <button
+        class="dual-option ${companyActive ? "active" : ""}"
+        onclick="toggleDualActivity('${a.id}', 'participate')"
+      >
+        شرکت
+      </button>
+
+      <button
+        class="dual-option ${organizeActive ? "active" : ""}"
+        onclick="toggleDualActivity('${a.id}', 'organize')"
+      >
+        برگزاری
+      </button>
+    </div>
+  `;
+  }
   const isFaraid = ["fajr", "dhuhr", "asr", "maghrib", "isha"].includes(a.id);
 
   if (isFaraid) {
@@ -551,23 +639,70 @@ function toggleHTML(a, day) {
 }
 
 function activityRow(a, day, group = null) {
-  // بررسی فرایض نماز
   const isFaraid = ["fajr", "dhuhr", "asr", "maghrib", "isha"].includes(a.id);
-
-  // آیا این آیتم داخل یک گروه اجباری/انحصاری است؟
   const isExclusive = group?.exclusive === true;
+
+  const s = statusOf(day, a.id);
+
+  // فعالیت دوحالته
+  if (a.type === "dual") {
+    const participateActive = s === "participate";
+    const organizeActive = s === "organize";
+
+    return `
+      <div class="activity">
+        <div class="activity-info">
+          <div class="activity-title">${esc(a.title)}</div>
+
+          <div class="activity-meta">
+            ${
+              participateActive
+                ? `شرکت · ${e2p(a.points)} امتیاز`
+                : organizeActive
+                  ? `برگزاری · ${e2p(a.secondaryPoints)} امتیاز`
+                  : "شرکت یا برگزاری"
+            }
+          </div>
+        </div>
+
+        <div style="display:flex;gap:8px;align-items:center;">
+
+          <div style="text-align:center;">
+            <div style="font-size:10px;color:var(--muted);margin-bottom:3px;">
+              شرکت
+            </div>
+            <button
+              class="toggle ${participateActive ? "done" : ""}"
+              onclick="toggleDualActivity('${a.id}', 'participate')"
+            >
+              ${participateActive ? "✓" : "×"}
+            </button>
+          </div>
+
+          <div style="text-align:center;">
+            <div style="font-size:10px;color:var(--muted);margin-bottom:3px;">
+              برگزاری
+            </div>
+            <button
+              class="toggle ${organizeActive ? "done" : ""}"
+              onclick="toggleDualActivity('${a.id}', 'organize')"
+            >
+              ${organizeActive ? "✓" : "×"}
+            </button>
+          </div>
+
+        </div>
+      </div>
+    `;
+  }
 
   let metaText;
 
   if (isFaraid) {
-    // نمازهای فرض
     metaText = a.required ? "اجباری" : "اختیاری";
   } else if (isExclusive) {
-    // گروه‌هایی مثل «تلاوت روزانه»
-    // فقط امتیاز نمایش داده شود
     metaText = `${e2p(a.points)} امتیاز`;
   } else {
-    // سایر فعالیت‌ها
     metaText = `${a.required ? "اجباری" : "اختیاری"} · ${e2p(a.points)} امتیاز`;
   }
 
@@ -577,6 +712,7 @@ function activityRow(a, day, group = null) {
         <div class="activity-title">${esc(a.title)}</div>
         <div class="activity-meta">${metaText}</div>
       </div>
+
       ${toggleHTML(a, day)}
     </div>
   `;
