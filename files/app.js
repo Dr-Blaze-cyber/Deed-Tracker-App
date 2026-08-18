@@ -893,9 +893,10 @@ function render() {
   ${notesHTML(day)}
 
   <div class="footer-actions">
-   <button class="btn btn-light" onclick="settingsModal()">تنظیمات و اطلاعات کاربر</button>
-   <button class="btn btn-light" onclick="summaryModal()">گزارش روز</button>
-  </div>`;
+ <button class="btn btn-light" onclick="settingsModal()">تنظیمات و اطلاعات کاربر</button>
+ <button class="btn btn-light" onclick="summaryModal()">گزارش روز</button>
+ <button class="btn btn-light" onclick="monthlySummaryModal()">گزارش ماهانه</button>
+</div>`;
   saveDB();
 }
 
@@ -1177,6 +1178,170 @@ function summaryModal() {
  </div>
  <h3 style="color:var(--red);margin-top:16px;font-size:14px;">کاستی‌های اجباری (${e2p(misses.length)})</h3>
  ${misses.length ? `<ul style="max-height: 140px; overflow-y: auto; padding-right: 15px; margin: 5px 0 0; font-size: 13px;">${misses.map((a) => `<li>${esc(a.title)} — ${e2p(a.points)} امتیاز</li>`).join("")}</ul>` : `<p style="color:var(--green);font-weight:800;font-size:13px;margin-top:6px;">هیچ فعالیت اجباری ثبت‌نشده‌ای وجود ندارد.</p>`}`);
+}
+
+function monthlySummaryModal() {
+  const currentDate = keyToJalali(currentKey);
+  const year = currentDate.jy;
+  const month = currentDate.jm;
+
+  const monthKeys = Object.keys(db.days).filter((key) => {
+    const j = keyToJalali(key);
+    return j.jy === year && j.jm === month;
+  });
+
+  const activities = allActivityItems();
+
+  const stats = {};
+
+  activities.forEach((a) => {
+    stats[a.id] = {
+      activity: a,
+      count: 0,
+      participate: 0,
+      organize: 0,
+      congregation: 0,
+      individual: 0,
+      qada: 0,
+      points: 0,
+    };
+  });
+
+  let totalPoints = 0;
+  let activeDays = 0;
+
+  monthKeys.forEach((key) => {
+    const day = db.days[key];
+    if (!day) return;
+
+    const dayScore = scoreDay(day);
+    totalPoints += dayScore.positive;
+
+    if (Object.values(day.statuses || {}).some((status) => status !== "x")) {
+      activeDays++;
+    }
+
+    activities.forEach((a) => {
+      const s = statusOf(day, a.id);
+
+      if (s === "participate") {
+        stats[a.id].participate++;
+        stats[a.id].count++;
+        stats[a.id].points += a.points;
+      } else if (s === "organize") {
+        stats[a.id].organize++;
+        stats[a.id].count++;
+        stats[a.id].points += a.secondaryPoints;
+      } else if (s === "congregation") {
+        stats[a.id].congregation++;
+        stats[a.id].count++;
+        stats[a.id].points += 20;
+      } else if (s === "individual") {
+        stats[a.id].individual++;
+        stats[a.id].count++;
+        stats[a.id].points += 10;
+      } else if (s === "qada") {
+        stats[a.id].qada++;
+        stats[a.id].count++;
+        stats[a.id].points += 5;
+      } else if (s === "y") {
+        stats[a.id].count++;
+        stats[a.id].points += a.points;
+      }
+    });
+  });
+
+  const monthName = MONTHS[month - 1];
+
+  const rows = activities
+    .filter((a) => stats[a.id].count > 0)
+    .map((a) => {
+      const st = stats[a.id];
+
+      let detail = "";
+
+      if (a.type === "dual") {
+        detail = `
+          شرکت: ${e2p(st.participate)}
+          <br>
+          برگزاری: ${e2p(st.organize)}
+        `;
+      } else if (["fajr", "dhuhr", "asr", "maghrib", "isha"].includes(a.id)) {
+        detail = `
+          جماعت: ${e2p(st.congregation)}
+          <br>
+          فردی: ${e2p(st.individual)}
+          <br>
+          قضا: ${e2p(st.qada)}
+        `;
+      } else {
+        detail = `تعداد انجام: ${e2p(st.count)}`;
+      }
+
+      return `
+        <div class="summary-item" style="display:block;">
+          <div style="font-weight:800;margin-bottom:5px;">
+            ${esc(a.title)}
+          </div>
+
+          <div style="font-size:12px;color:var(--muted);line-height:1.8;">
+            ${detail}
+          </div>
+
+          <div style="margin-top:5px;font-weight:700;">
+            ${e2p(st.points)} امتیاز
+          </div>
+        </div>
+      `;
+    })
+    .join("");
+
+  openModal(`
+    <h2>گزارش ماهانه</h2>
+
+    <div style="
+      margin-bottom:15px;
+      padding:12px;
+      background:rgba(0,0,0,0.04);
+      border-radius:10px;
+      line-height:2;
+    ">
+      <div>
+        <b>ماه:</b>
+        ${esc(monthName)} ${e2p(year)}
+      </div>
+
+      <div>
+        <b>روزهای دارای فعالیت:</b>
+        ${e2p(activeDays)}
+      </div>
+
+      <div>
+        <b>مجموع امتیاز ماه:</b>
+        ${e2p(totalPoints)}
+      </div>
+    </div>
+
+    <h3 style="
+      color:var(--red);
+      margin-top:10px;
+      font-size:14px;
+    ">
+      فعالیت‌های انجام‌شده
+    </h3>
+
+    <div class="summary-list" style="
+      max-height:420px;
+      overflow-y:auto;
+    ">
+      ${
+        rows ||
+        `<div class="empty">
+          در این ماه فعالیتی ثبت نشده است.
+        </div>`
+      }
+    </div>
+  `);
 }
 
 /* -------------------- First launch -------------------- */

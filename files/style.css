@@ -598,21 +598,39 @@ select {
 
 .footer-actions {
   position: fixed;
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 8px;
+
   bottom: env(safe-area-inset-bottom, 12px);
   left: 50%;
   transform: translateX(-50%);
+
   width: calc(100% - 24px);
   max-width: 876px;
+
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(10px);
+
   padding: 10px;
   border-radius: 18px;
+
   box-shadow: 0 -5px 25px rgba(21, 101, 192, 0.15);
+
   z-index: 20;
   margin-top: 0;
 }
+
 .footer-actions .btn {
-  padding: 10px;
-  font-size: 13px;
-  border-radius: 12px;
+  flex: 1 1 0;
+  min-width: 0;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  padding-left: 6px;
+  padding-right: 6px;
+
+  font-size: 12px;
 }
