@@ -382,8 +382,20 @@ function setStatus(day, id, value) {
   day.updatedAt = nowISO();
 }
 
+function checkExclusiveGroup(day, group) {
+  const selected = group.items.find((item) => statusOf(day, item.id) === "y");
+
+  return {
+    done: !!selected,
+    selected,
+  };
+}
 /* -------------------- Scoring -------------------- */
 function scoreDay(day) {
+  const dailyQuranGroup = ACTIVITIES.quran.groups.find(
+    (g) => g.exclusive && g.title === "تلاوت روزانه",
+  );
+  const dailyQuranStatus = checkExclusiveGroup(day, dailyQuranGroup);
   let positive = 0,
     requiredMisses = 0,
     done = 0,
@@ -391,6 +403,13 @@ function scoreDay(day) {
     applicable = 0;
 
   allActivityItems(currentKey).forEach((a) => {
+    const isDailyQuran = dailyQuranGroup?.items.some(
+      (item) => item.id === a.id,
+    );
+
+    if (isDailyQuran) return;
+    if (a.condition && !a.condition(currentKey)) return;
+
     const s = statusOf(day, a.id);
 
     const isFaraid = ["fajr", "dhuhr", "asr", "maghrib", "isha"].includes(a.id);
@@ -421,6 +440,17 @@ function scoreDay(day) {
       }
     }
   });
+
+  if (dailyQuranGroup) {
+    if (dailyQuranStatus.done) {
+      done++;
+      positive += dailyQuranStatus.selected.points;
+      applicable++;
+    } else {
+      requiredMisses++;
+      applicable++;
+    }
+  }
 
   const studyPoints =
     Math.floor(day.study.reduce((n, r) => n + (Number(r.pages) || 0), 0) / 10) *
@@ -520,46 +550,38 @@ function toggleHTML(a, day) {
   return `<button class="toggle ${cls}" style="${styleAttr}" onclick="toggleActivity('${a.id}')">${label}</button>`;
 }
 
-// function toggleHTML(a, day) {
-//   const s = statusOf(day, a.id);
-//   // تنظیم ظاهر دکمه بر اساس وضعیت
-//   let label = "×";
-//   let cls = "";
-//   if (a.section === "prayers") {
-//     if (s === "congregation") {
-//       label = "جماعت";
-//       cls = "done";
-//     } else if (s === "individual") {
-//       label = "فرادی";
-//       cls = "partial";
-//     } else if (s === "qada") {
-//       label = "قضا";
-//       cls = "qada";
-//     }
-//   } else {
-//     label = s === "y" ? "✓" : "×";
-//     cls = s === "y" ? "done" : "";
-//   }
-//   return `<button class="toggle ${cls}" onclick="toggleActivity('${a.id}')">${label}</button>`;
-// }
-function activityRow(a, day) {
-  // بررسی اینکه آیا آیتم جزء فرایض نماز است یا خیر
+function activityRow(a, day, group = null) {
+  // بررسی فرایض نماز
   const isFaraid = ["fajr", "dhuhr", "asr", "maghrib", "isha"].includes(a.id);
 
-  // اگر جزء فرایض باشد فقط اجباری/اختیاری، در غیر این صورت همراه با امتیاز
-  const metaText = isFaraid
-    ? a.required
-      ? "اجباری"
-      : "اختیاری"
-    : `${a.required ? "اجباری" : "اختیاری"} · ${e2p(a.points)} امتیاز`;
+  // آیا این آیتم داخل یک گروه اجباری/انحصاری است؟
+  const isExclusive = group?.exclusive === true;
 
-  return `<div class="activity">
-   <div class="activity-info">
-    <div class="activity-title">${esc(a.title)}</div>
-    <div class="activity-meta">${metaText}</div>
-   </div>${toggleHTML(a, day)}
- </div>`;
+  let metaText;
+
+  if (isFaraid) {
+    // نمازهای فرض
+    metaText = a.required ? "اجباری" : "اختیاری";
+  } else if (isExclusive) {
+    // گروه‌هایی مثل «تلاوت روزانه»
+    // فقط امتیاز نمایش داده شود
+    metaText = `${e2p(a.points)} امتیاز`;
+  } else {
+    // سایر فعالیت‌ها
+    metaText = `${a.required ? "اجباری" : "اختیاری"} · ${e2p(a.points)} امتیاز`;
+  }
+
+  return `
+    <div class="activity">
+      <div class="activity-info">
+        <div class="activity-title">${esc(a.title)}</div>
+        <div class="activity-meta">${metaText}</div>
+      </div>
+      ${toggleHTML(a, day)}
+    </div>
+  `;
 }
+
 function sectionHTML(key, day) {
   const sec = ACTIVITIES[key];
   let body = "";
@@ -574,8 +596,15 @@ function sectionHTML(key, day) {
 
         return `
    <div class="subcard">
-    <div class="subcard-title">${esc(g.title)}</div>
-    ${visibleItems.map((a) => activityRow(a, day)).join("")}
+    <div class="subcard-title">
+  ${esc(g.title)}
+  ${
+    g.exclusive
+      ? `<span style="font-size:11px;color:var(--red);margin-right:8px;font-weight:700;">حداقل یک گزینه اجباری</span>`
+      : ""
+  }
+</div>
+    ${visibleItems.map((a) => activityRow(a, day, g)).join("")}
    </div>`;
       })
       .join("")}</div>`;
@@ -616,7 +645,7 @@ function studyHTML(day) {
         .join("")
     : `<div class="empty">هنوز کتابی برای این روز ثبت نشده است.</div>`;
   return `<section class="section">
-   <div class="section-head"><h2 class="section-title"> برنامه مطالعاتی (هر 10 صفحه 1 امتیاز)</h2><button class="btn btn-light" onclick="addStudy()">＋ افزودن کتاب</button></div>
+   <div class="section-head"><h2 class="section-title"> برنامه مطالعاتی (هر 10 صفحه 2 امتیاز)</h2><button class="btn btn-light" onclick="addStudy()">＋ افزودن کتاب</button></div>
    <div class="section-body">${rows}</div>
  </section>`;
 }
