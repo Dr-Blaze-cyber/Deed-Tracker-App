@@ -781,7 +781,10 @@ function studyHTML(day) {
         .join("")
     : `<div class="empty">هنوز کتابی برای این روز ثبت نشده است.</div>`;
   return `<section class="section">
-   <div class="section-head"><h2 class="section-title"> برنامه مطالعاتی (هر 10 صفحه 2 امتیاز)</h2><button class="btn btn-light" onclick="addStudy()">＋ افزودن کتاب</button></div>
+   <div class="section-head study-section-head">
+  <h2 class="section-title">برنامه مطالعاتی (هر 10 صفحه 2 امتیاز)</h2>
+  <button class="btn btn-light" onclick="addStudy()">＋ افزودن کتاب</button>
+</div>
    <div class="section-body">${rows}</div>
  </section>`;
 }

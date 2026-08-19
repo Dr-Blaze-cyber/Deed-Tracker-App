@@ -600,3 +600,25 @@ select {
 
   font-size: 12px;
 }
+
+@media (max-width: 620px) {
+  .study-section-head {
+    padding: 10px 12px;
+    gap: 8px;
+  }
+
+  .study-section-head .section-title {
+    font-size: 13px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .study-section-head .btn {
+    flex: 0 0 auto;
+    white-space: nowrap;
+    padding: 7px 9px;
+    font-size: 11px;
+    border-radius: 9px;
+  }
+}
