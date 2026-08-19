@@ -241,7 +241,7 @@ const ACTIVITIES = {
           A("morningIstighfar", "۱۰۰ مرتبه استغفار", false, 5),
           A("morningSalawat", "۱۰۰ مرتبه درود", false, 5),
           A("morningThirdKalima", "۱۰۰ مرتبه کلمه سوم", false, 5),
-          A("morningThirdKalima", "اذکار صبح", false, 5),
+          A("morningDhikr", "اذکار صبح", false, 5),
         ],
       },
       {
@@ -251,7 +251,7 @@ const ACTIVITIES = {
           A("eveningIstighfar", "۱۰۰ مرتبه استغفار", false, 2),
           A("eveningSalawat", "۱۰۰ مرتبه درود", false, 2),
           A("eveningThirdKalima", "۱۰۰ مرتبه کلمه سوم", false, 2),
-          A("morningThirdKalima", "اذکار شام", false, 2),
+          A("eveningDhikr", "اذکار شام", false, 2),
         ],
       },
     ],
