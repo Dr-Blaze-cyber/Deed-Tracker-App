@@ -45,11 +45,7 @@ button {
 .hidden {
   display: none !important;
 }
-#app {
-  max-width: 900px;
-  margin: auto;
-  padding: 16px 12px 50px;
-}
+
 .app-header {
   background: linear-gradient(135deg, #1565c0, #2196f3);
   color: white;
@@ -70,16 +66,7 @@ button {
   line-height: 1.8;
   text-align: center;
 }
-.day-bar {
-  background: white;
-  border: 1px solid var(--border);
-  border-radius: 20px;
-  padding: 15px;
-  box-shadow: var(--shadow);
-  position: sticky;
-  top: 8px;
-  z-index: 5;
-}
+
 .day-number {
   text-align: center;
   color: var(--blue);
@@ -116,14 +103,7 @@ button {
   background: var(--redbg);
   color: var(--red);
 }
-.progress-card {
-  margin: 14px 0;
-  background: white;
-  border: 1px solid var(--border);
-  border-radius: 18px;
-  padding: 14px;
-  box-shadow: var(--shadow);
-}
+
 .progress-row {
   display: flex;
   justify-content: space-between;
@@ -158,10 +138,9 @@ button {
   transition: width 0.3s ease;
 }
 
-/* ایست بازرسی حد نصاب */
 .progress-checkpoint {
   position: absolute;
-  top: 14px; /* از بالا کمی پایین‌تر آمد تا عدد محو نشود */
+  top: 14px;
   transform: translateX(-50%);
   height: 28px;
   z-index: 2;
@@ -170,29 +149,28 @@ button {
 
 .checkpoint-line {
   width: 3px;
-  height: 28px; /* ارتفاع خط متناسب با نقطه شروع جدید تنظیم شد */
+  height: 28px;
   margin: 0 auto;
-  background: var(--red); /* رنگ پیش‌فرض: قرمز وقتی به حد نصاب نرسیده */
-  box-shadow: 0 0 7px rgba(198, 40, 40, 0.35); /* سایه قرمز */
+  background: var(--red);
+  box-shadow: 0 0 7px rgba(198, 40, 40, 0.35);
   border-radius: 4px;
   transition: 0.25s ease;
 }
 
 .checkpoint-label {
   position: absolute;
-  top: -14px; /* قرارگیری دقیق لیبل در بالای خط */
+  top: -14px;
   left: 50%;
   transform: translateX(-50%);
   white-space: nowrap;
   font-size: 10px;
   font-weight: 900;
-  color: var(--red); /* رنگ عدد: قرمز */
+  color: var(--red);
   background: white;
   padding: 1px 5px;
   border-radius: 6px;
 }
 
-/* حالت پاس شده (رسیده به حد نصاب) - تغییر به سبز */
 .progress-checkpoint.passed .checkpoint-line {
   background: var(--green);
   box-shadow: 0 0 7px rgba(22, 132, 75, 0.45);
@@ -339,12 +317,7 @@ select {
   padding: 15px;
   font-size: 13px;
 }
-.footer-actions {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  margin-top: 14px;
-}
+
 .toast {
   position: fixed;
   bottom: 20px;
@@ -477,7 +450,6 @@ select {
   }
 }
 
-/* کانتینر استیکی شناور با ۴ گوشه گرد */
 .sticky-header {
   position: sticky;
   top: 8px;
@@ -487,13 +459,12 @@ select {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* حالت اسکرول خورده: گرد شدن تمام ۴ گوشه با سایه و پس‌زمینه بلور */
 .sticky-header.scrolled {
   background: rgba(255, 255, 255, 0.96);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid var(--border);
-  border-radius: 20px; /* گرد شدن هر ۴ طرف */
+  border-radius: 20px;
   box-shadow: 0 10px 30px rgba(21, 101, 192, 0.12);
   padding: 10px 14px;
 }
@@ -553,23 +524,20 @@ select {
   border-radius: 10px;
 }
 
-/* نمایش چکپوینت در حالت اسکرول */
 .sticky-header.scrolled .progress-checkpoint {
-  display: block; /* لغو مخفی شدن کل چکپوینت */
-  top: -3px; /* تنظیم ارتفاع برای قرارگیری دقیق روی نوار باریک */
+  display: block;
+  top: -3px;
   height: 12px;
 }
 
 .sticky-header.scrolled .checkpoint-line {
-  height: 12px; /* خط متناسب با نوار ۶ پیکسلی (کمی بیرون‌زدگی از بالا و پایین) */
+  height: 12px;
 }
 
-/* مخفی کردن عدد حد نصاب در حالت اسکرول */
 .sticky-header.scrolled .checkpoint-label {
   display: none !important;
 }
 
-/* اصلاح day-bar و progress-card برای قرارگیری در کانتینر جدید */
 .day-bar {
   background: white;
   border: 1px solid var(--border);
@@ -588,11 +556,9 @@ select {
   transition: all 0.3s ease;
 }
 
-/* رفع مشکل رفتن دکمه‌های پایین زیر نوار ناوبری موبایل و کوچک‌تر کردن آن‌ها */
 #app {
   max-width: 900px;
   margin: auto;
-  /* اضافه کردن فضای خالی متناسب با گوشی‌ها در پایین صفحه */
   padding: 16px 12px calc(80px + env(safe-area-inset-bottom, 20px));
 }
 
